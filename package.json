@@ -1,0 +1,45 @@
+{
+  "_from": "protolite@^1.0.0",
+  "_inBundle": false,
+  "_integrity": "sha512-QKAbbCUfzQLmcrN9sYj7AvncBTuwTryVUJZJWcKkzGlNkUzAyJZ29JPLlcFBx4V5p2d5vwuhHlMCN1vZn9CVkw==",
+  "_location": "/protolite",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "protolite@^1.0.0",
+    "name": "protolite",
+    "escapedName": "@js1314%2fprotolite",
+    "scope": "@js1314",
+    "rawSpec": "^1.0.0",
+    "saveSpec": null,
+    "fetchSpec": "^1.0.0"
+  },
+  "_requiredBy": [
+    "/",
+    "/iview-admin-table"
+  ],
+  "_resolved": "https://registry.npmjs.org/protolite/-/protolite-1.0.1.tgz",
+  "_shasum": "5218ad220ac8c817c14d8413b7728f3b3928b401",
+  "_spec": "protolite@^1.0.0",
+  "_where": "D:\\Work\\01project\\iview-admin-owner\\iweb",
+  "author": "zyl <733433@qq.com>",
+  "bugs": {
+    "url": "https://github.com/js1314/protolite/issues"
+  },
+  "deprecated": false,
+  "description": "封装了一些开发中常用的js原型方法",
+  "homepage": "https://github.com/js1314/protolite#readme",
+  "keywords": [
+    "protolite"
+  ],
+  "license": "MIT",
+  "main": "index.js",
+  "name": "protolite",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/js1314/protolite.git"
+  },
+  "scripts": {},
+  "version": "1.0.1"
+}
