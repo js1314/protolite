@@ -2,10 +2,11 @@
  * 扩展js的原型链prototype方法
  * 这样就可以在全局内方便使用而不用加载
  *
- * @ahtor zyl<733433@qq.com>
+ * @ahtor Yonglong Zhu<733433@qq.com>
+ * @version 1.0.3
  */
 
-import {toByteArray} from 'base64-js';
+import { toByteArray } from 'base64-js'
 
 /**
  * 继承多个对象 不替换/不递归/保留索引
@@ -16,19 +17,19 @@ import {toByteArray} from 'base64-js';
  */
 function extend(target) {
   for (let i = 1, l = arguments.length; i < l; i++) {
-    let dest = arguments[i] || {};
+    let dest = arguments[i] || {}
     for (let key in dest) {
       if (typeof target[key] === 'undefined') {
-        target[key] = dest[key];
+        target[key] = dest[key]
       }
     }
   }
-  return target;
-};
+  return target
+}
 
 // 对象类型判断方法分配
 // Object.is*， as: Promise.isPromise
-const toString = Object.prototype.toString;
+const toString = Object.prototype.toString
 const typeMap = {
   '[object Boolean]': [Boolean, 'Boolean'],
   '[object Number]': [Number, 'Number'],
@@ -41,20 +42,20 @@ const typeMap = {
   // '[object Null]': [null, 'Null'],
   '[object Object]': [Object, 'Object'],
   //'[object Promise]': [Promise, 'Promise'],
-};
+}
 for (let type in typeMap) {
-  let map = typeMap[type];
-  let obj = map[0];
-  let iss = 'is' + map[1];
+  let map = typeMap[type]
+  let obj = map[0]
+  let iss = 'is' + map[1]
   if (typeof obj[iss] === 'function') {
     // console.warn('[native code] ' + map[1] + '.' + iss + ' already defined')
   } else {
-    obj[iss] = v => toString.call(v) === type;
+    obj[iss] = (v) => toString.call(v) === type
   }
-  Object[iss] = obj[iss];
+  Object[iss] = obj[iss]
 }
 
-const slice = Array.prototype.slice;
+const slice = Array.prototype.slice
 
 /**
  * 获取对象类型
@@ -63,15 +64,15 @@ const slice = Array.prototype.slice;
  * @return {String}
  */
 function typeOf(obj) {
-  let ret = typeMap[toString.call(obj)];
-  return ret ? ret[1].toLowerCase() : 'undefined';
-};
+  let ret = typeMap[toString.call(obj)]
+  return ret ? ret[1].toLowerCase() : 'undefined'
+}
 
 // extend window
 extend(window, {
   // 创建一个全局对象用来存储跟组件相关的方法
-  Component: {}
-});
+  Component: {},
+})
 
 // extend Object
 extend(Object, {
@@ -85,7 +86,7 @@ extend(Object, {
    */
   forEach(obj, callback, context) {
     for (let key in obj) {
-      callback.call(context, obj[key], key);
+      callback.call(context, obj[key], key)
     }
   },
   /**
@@ -94,7 +95,7 @@ extend(Object, {
    * @return {boolean}
    */
   isPromise(obj) {
-    return !!obj && typeof obj.then === 'function' && typeof obj.catch === 'function';
+    return !!obj && typeof obj.then === 'function' && typeof obj.catch === 'function'
   },
   /**
    * 是否为组件
@@ -102,7 +103,7 @@ extend(Object, {
    * @returns {boolean}
    */
   isComponent(obj) {
-    return obj && (typeof obj === 'object' || typeof obj === 'function');
+    return obj && (typeof obj === 'object' || typeof obj === 'function')
   },
   /**
    * 是否为空对象
@@ -112,10 +113,10 @@ extend(Object, {
   isEmpty(obj) {
     if (obj && typeof obj === 'object') {
       for (let key in obj) {
-        return false;
+        return false
       }
     }
-    return true;
+    return true
   },
   /**
    * 方法作用到对象中每一个值
@@ -127,17 +128,17 @@ extend(Object, {
   map(obj, callback, deep = true) {
     if (obj && typeof obj === 'object') {
       for (let key in obj) {
-        let value = obj[key];
+        let value = obj[key]
         if (Object.isObject(value)) {
-          obj[key] = Object.map(value, callback, deep);
+          obj[key] = Object.map(value, callback, deep)
         } else if (Array.isArray(value)) {
-          obj[key] = value.map(item => Object.map(item, callback, deep));
+          obj[key] = value.map((item) => Object.map(item, callback, deep))
         } else {
-          obj[key] = callback(value);
+          obj[key] = callback(value)
         }
       }
     }
-    return obj;
+    return obj
   },
   /**
    * 对象数组 转 数组
@@ -145,7 +146,7 @@ extend(Object, {
    * @return {Array}
    */
   toArray(obj) {
-    return slice.call(obj);
+    return slice.call(obj)
   },
   /**
    * 不替换继承对象
@@ -157,10 +158,10 @@ extend(Object, {
   include(dest, target, ignoreKeys = []) {
     for (let key in target) {
       if (typeof dest[key] === 'undefined' && !ignoreKeys.contains(key)) {
-        dest[key] = target[key];
+        dest[key] = target[key]
       }
     }
-    return dest;
+    return dest
   },
   /**
    * 替换继承对象
@@ -172,10 +173,10 @@ extend(Object, {
   replace(dest, target, ignoreKeys = []) {
     for (let key in target) {
       if (!ignoreKeys.contains(key)) {
-        dest[key] = target[key];
+        dest[key] = target[key]
       }
     }
-    return dest;
+    return dest
   },
   /**
    * 去除左右空格
@@ -183,24 +184,25 @@ extend(Object, {
    * @returns {Object}
    */
   trim(obj, deep = true) {
-    if (obj && typeof obj === 'object') { // object/array
+    if (obj && typeof obj === 'object') {
+      // object/array
       for (let key in obj) {
-        obj[key] = Object.trimSingle(obj[key], deep);
+        obj[key] = Object.trimSingle(obj[key], deep)
       }
     }
-    return obj;
+    return obj
   },
   trimSingle(value, deep = true) {
     if (String.isString(value)) {
-      return value.trim();
+      return value.trim()
     }
     if (Object.isObject(value)) {
-      return Object.trim(value, deep);
+      return Object.trim(value, deep)
     }
     if (Array.isArray(value)) {
-      return value.trim(deep);
+      return value.trim(deep)
     }
-    return value;
+    return value
   },
   /**
    * 复制对象
@@ -209,22 +211,22 @@ extend(Object, {
    * @returns {Object}
    */
   clone(obj, deep = true) {
-    let hash = {};
+    let hash = {}
     if (obj && typeof obj === 'object') {
       for (let key in obj) {
-        hash[key] = Object.cloneSingle(obj[key], deep);
+        hash[key] = Object.cloneSingle(obj[key], deep)
       }
     }
-    return hash;
+    return hash
   },
   cloneSingle(value, deep = true) {
     if (Object.isObject(value)) {
-      return Object.clone(value, deep);
+      return Object.clone(value, deep)
     }
     if (Array.isArray(value)) {
-      return value.clone(deep);
+      return value.clone(deep)
     }
-    return value;
+    return value
   },
   /**
    * 返回两个对象中不相同的部分(递归)
@@ -235,44 +237,49 @@ extend(Object, {
    * @returns {Object}
    */
   diff(newData, oldData, primaryKey = '', ignoreKeys = []) {
-    let data = {};
+    let data = {}
     if (newData && typeof newData === 'object') {
       for (let key in newData) {
         if (!ignoreKeys.contains(key)) {
-          let oldv = oldData[key];
-          if (primaryKey && primaryKey === key) { // 保留主键
-            data[key] = oldv;
+          let oldv = oldData[key]
+          if (primaryKey && primaryKey === key) {
+            // 保留主键
+            data[key] = oldv
           } else {
-            let newv = Object.diffSingle(newData[key], oldv, primaryKey, ignoreKeys);
+            let newv = Object.diffSingle(newData[key], oldv, primaryKey, ignoreKeys)
             if (newv !== undefined) {
-              data[key] = newv;
+              data[key] = newv
             }
           }
         }
       }
     }
-    return data;
+    return data
   },
   diffSingle(newValue, oldValue, primaryKey = '', ignoreKeys = []) {
     if (oldValue === undefined) {
-      return newValue;
+      return newValue
     }
-    if (oldValue === newValue) { // 修改过
-      return undefined;
+    if (oldValue === newValue) {
+      // 修改过
+      return undefined
     }
     if (Object.isObject(newValue)) {
-      return Object.isObject(oldValue) ? Object.diff(newValue, oldValue, primaryKey, ignoreKeys) : newValue;
+      return Object.isObject(oldValue) ? Object.diff(newValue, oldValue, primaryKey, ignoreKeys) : newValue
     }
     if (Array.isArray(newValue)) {
-      return Array.isArray(oldValue) ? newValue.diff(oldValue, primaryKey, ignoreKeys) : newValue;
+      return Array.isArray(oldValue) ? newValue.diff(oldValue, primaryKey, ignoreKeys) : newValue
     }
     if (Date.isDate(newValue)) {
       // 日期格式默认时分秒为00:00:00
-      if (newValue.toString() === (new Date(oldValue + (String.isString(oldValue) && oldValue.indexOf(' ') === -1 ? ' 00:00:00' : ''))).toString()) {
-        return undefined;
+      if (
+        newValue.toString() ===
+        new Date(oldValue + (String.isString(oldValue) && oldValue.indexOf(' ') === -1 ? ' 00:00:00' : '')).toString()
+      ) {
+        return undefined
       }
     }
-    return newValue;
+    return newValue
   },
   /**
    * 捕获Promise异常到控制台warn
@@ -280,9 +287,9 @@ extend(Object, {
    * @return {Promise<any>}
    */
   console(data) {
-    let promise = new Promise((resolve, reject) => reject(data));
-    promise.catch(error => error && console.warn(error));
-    return promise;
+    let promise = new Promise((resolve, reject) => reject(data))
+    promise.catch((error) => error && console.warn(error))
+    return promise
   },
   /**
    * 根据路径获取
@@ -293,14 +300,14 @@ extend(Object, {
    */
   get(data, path, def = null) {
     for (let value = data, paths = path.split('.'), i = 0, l = paths.length; i < l; i++) {
-      let _value = value[paths[i]];
+      let _value = value[paths[i]]
       if (typeof _value === 'object') {
-        def = value = _value;
+        def = value = _value
       } else {
-        return _value;
+        return _value
       }
     }
-    return def;
+    return def
   },
   /**
    * 调用对象方法
@@ -312,23 +319,22 @@ extend(Object, {
   apply(hook, name, args) {
     if (hook && typeof hook[name] === 'function') {
       try {
-        return args ? hook[name].apply(hook, args) : hook[name]();
-      } catch (e) {
-      }
+        return args ? hook[name].apply(hook, args) : hook[name]()
+      } catch (e) {}
     }
-    return null;
-  }
-});
+    return null
+  },
+})
 
 // extend Function
-extend(Function, {});
+extend(Function, {})
 
 // extend Array
 extend(Array, {
   isArrayBuffer(val) {
-    return toString.call(val) === '[object ArrayBuffer]';
-  }
-});
+    return toString.call(val) === '[object ArrayBuffer]'
+  },
+})
 
 // extend String
 extend(String, {
@@ -342,16 +348,16 @@ extend(String, {
   toArray(str, split = ',') {
     if (str && str.length > 0) {
       if (Array.isArray(str)) {
-        return str;
+        return str
       }
       if (String.isString(str)) {
-        return str.split(split);
+        return str.split(split)
       }
-      return [str];
+      return [str]
     }
-    return [];
-  }
-});
+    return []
+  },
+})
 
 // extend Date
 extend(Date, {
@@ -362,31 +368,21 @@ extend(Date, {
    * @returns {number}
    */
   time(date, ms = false) {
-    return Math.round((date ? new Date(date) : new Date()).getTime() / (ms ? 1 : 1000));
-  }
-});
+    return Math.round((date ? new Date(date) : new Date()).getTime() / (ms ? 1 : 1000))
+  },
+})
 
 // extend Element
 extend(Element, {
   isElement(elem) {
-    return elem && elem.nodeType == 1;
-  }
-});
+    return elem && elem.nodeType == 1
+  },
+})
 
 // extend Component
 extend(Component, {
   isComponent: Object.isComponent,
-  /**
-   * 懒加载视图组件
-   * @param component
-   * @returns {Function}
-   */
-  lazyView(component) {
-    return resolve => {
-      require([`@/view/${component}`], resolve);
-    };
-  }
-});
+})
 
 // String.prototype
 extend(String.prototype, {
@@ -395,7 +391,7 @@ extend(String.prototype, {
    * @return {string}
    */
   ucfirst() {
-    return this.charAt(0).toUpperCase() + this.substr(1);
+    return this.charAt(0).toUpperCase() + this.substr(1)
   },
   /**
    * 重复若干(len)次
@@ -403,11 +399,11 @@ extend(String.prototype, {
    * @return {String}
    */
   repeat(len) {
-    let str = '';
+    let str = ''
     while (len-- > 0) {
-      str += this;
+      str += this
     }
-    return str;
+    return str
   },
   /**
    * 用指定的字符(char)将自身扩展到指定长度(max_len)
@@ -416,26 +412,26 @@ extend(String.prototype, {
    * @return {string}
    */
   pad(char, max_len) {
-    let str = this;
-    let len = str.length;
-    return len < max_len ? char.repeat(max_len - len) + str : str;
+    let str = this
+    let len = str.length
+    return len < max_len ? char.repeat(max_len - len) + str : str
   },
   /**
    * 字符长度，中文+2
    * @return {number}
    */
   len(ch = 2, en = 1) {
-    let len = 0;
-    let chr = /[\u4e00-\u9fa5]+/;
+    let len = 0
+    let chr = /[\u4e00-\u9fa5]+/
     for (let i = 0, l = this.length; i < l; i++) {
-      let char = this.charAt(i);
+      let char = this.charAt(i)
       if (chr.test(char)) {
-        len += ch;
+        len += ch
       } else {
-        len += en;
+        len += en
       }
     }
-    return len;
+    return len
   },
   /**
    * 删除一段字符串
@@ -444,28 +440,28 @@ extend(String.prototype, {
    * @return {string}
    */
   remove(str, split = ',') {
-    return this.split(split).remove(str).join(',');
+    return this.split(split).remove(str).join(',')
   },
   /**
    * base64编码
    * @return {string}
    */
   base64encode() {
-    return new Buffer(this).toString('base64');
+    return new Buffer(this).toString('base64')
   },
   /**
    * base64解码
    * @return {string}
    */
   base64decode() {
-    return String.fromCharCode(...toByteArray(this));
-  }
-});
+    return String.fromCharCode(...toByteArray(this))
+  },
+})
 
 // Array.prototype
 extend(Array.prototype, {
   toArray() {
-    return this.slice(0);
+    return this.slice(0)
   },
   /**
    * 值是否存在
@@ -473,7 +469,7 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   contains(item) {
-    return this.indexOf(item) !== -1;
+    return this.indexOf(item) !== -1
   },
   /**
    * 添加项 如果不存在
@@ -481,8 +477,8 @@ extend(Array.prototype, {
    * @return {Array}
    */
   add(item) {
-    this.indexOf(item) === -1 && this.push(item);
-    return this;
+    this.indexOf(item) === -1 && this.push(item)
+    return this
   },
   /**
    * 删除项 如果存在
@@ -490,9 +486,9 @@ extend(Array.prototype, {
    * @return {Array}
    */
   remove(item) {
-    let index = this.indexOf(item);
-    index === -1 || this.splice(index, 1);
-    return this;
+    let index = this.indexOf(item)
+    index === -1 || this.splice(index, 1)
+    return this
   },
   /**
    * [...Object] 是否有对象
@@ -502,7 +498,7 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   hasObj(obj, fromKey = 'id', toKey = 'id') {
-    return this.some(item => item[fromKey] === obj[toKey]);
+    return this.some((item) => item[fromKey] === obj[toKey])
   },
   /**
    * [...Object] 查找对象
@@ -512,8 +508,8 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   findObj(obj, fromKey = 'id', toKey = 'id') {
-    let index = this.findIndex(value => obj[fromKey] === value[toKey]);
-    return index === -1 ? null : this[index];
+    let index = this.findIndex((value) => obj[fromKey] === value[toKey])
+    return index === -1 ? null : this[index]
   },
   /**
    * [...Object] 添加对象
@@ -523,8 +519,8 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   addObj(obj, fromKey = 'id', toKey = 'id') {
-    this.hasObj(obj, fromKey, toKey) || this.push(obj);
-    return this;
+    this.hasObj(obj, fromKey, toKey) || this.push(obj)
+    return this
   },
   /**
    * [...Object] 替换对象
@@ -534,11 +530,11 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   replaceObj(obj, fromKey = 'id', toKey = 'id') {
-    let fromFun = typeof fromKey === 'function' ? fromKey : value => obj[fromKey] === value[toKey];
-    let index = this.findIndex(fromFun);
-    let toFun = typeof toKey === 'function' ? toKey : v => v;
-    index === -1 ? this.push(toFun(obj, this[index])) : this.splice(index, 1, toFun(obj, this[index]));
-    return this;
+    let fromFun = typeof fromKey === 'function' ? fromKey : (value) => obj[fromKey] === value[toKey]
+    let index = this.findIndex(fromFun)
+    let toFun = typeof toKey === 'function' ? toKey : (v) => v
+    index === -1 ? this.push(toFun(obj, this[index])) : this.splice(index, 1, toFun(obj, this[index]))
+    return this
   },
   /**
    * [...Object] 删除对象
@@ -551,16 +547,16 @@ extend(Array.prototype, {
   removeObj(obj, fromKey = 'id', toKey = 'id', isAny = false) {
     let isSome = this.some((item, index) => {
       if (item[fromKey] === obj[toKey]) {
-        this.splice(index, 1);
-        return true;
+        this.splice(index, 1)
+        return true
       }
-      return false;
-    });
+      return false
+    })
     if (isAny && isSome) {
-      return this.removeObj(obj, fromKey, toKey, true);
+      return this.removeObj(obj, fromKey, toKey, true)
     }
     // return isSome
-    return this;
+    return this
   },
   /**
    * 返回两个数据中不相同的项 深度递归
@@ -570,18 +566,18 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   diff(oldData, primaryKey = '', ignoreKeys = []) {
-    let l = oldData && oldData.length;
+    let l = oldData && oldData.length
     if (!l || l != this.length) {
-      return this.slice(0);
+      return this.slice(0)
     }
-    let diff = [];
+    let diff = []
     this.forEach((newv, key) => {
-      let oldv = primaryKey ? oldData.findObj(newv, primaryKey, primaryKey) : oldData[key];
+      let oldv = primaryKey ? oldData.findObj(newv, primaryKey, primaryKey) : oldData[key]
       if ((newv = Object.diffSingle(newv, oldv, primaryKey, ignoreKeys)) !== undefined) {
-        diff[key] = newv;
+        diff[key] = newv
       }
-    });
-    return diff;
+    })
+    return diff
   },
   /**
    * 去除数组中每个值的左右空格
@@ -591,14 +587,14 @@ extend(Array.prototype, {
    * @return {boolean}
    */
   trim(deep = true) {
-    return this.map(item => Object.trimSingle(item, deep));
+    return this.map((item) => Object.trimSingle(item, deep))
   },
   /**
    * 获取数据数据最后一条
    * @return {*}
    */
   end() {
-    return this[this.length - 1];
+    return this[this.length - 1]
   },
   /**
    * 收集数组对象中某个字段的值
@@ -607,16 +603,16 @@ extend(Array.prototype, {
    * @return {Array}
    */
   column(key) {
-    let columns = [];
-    this.forEach(item => {
-      let type = typeof item;
+    let columns = []
+    this.forEach((item) => {
+      let type = typeof item
       if (type === 'string' || type === 'number') {
-        columns.push(item);
+        columns.push(item)
       } else if (type === 'object' && item[key] !== undefined) {
-        columns.push(item[key]);
+        columns.push(item[key])
       }
-    });
-    return columns;
+    })
+    return columns
   },
   /**
    * 继承多个数组
@@ -625,13 +621,13 @@ extend(Array.prototype, {
    */
   extend() {
     for (let i = 0, l = arguments.length; i < l; i++) {
-      arguments[i].forEach(item => {
+      arguments[i].forEach((item) => {
         if (this.indexOf(item) === -1) {
-          this.push(item);
+          this.push(item)
         }
-      });
+      })
     }
-    return this;
+    return this
   },
   /**
    * 克隆一个数组
@@ -640,11 +636,11 @@ extend(Array.prototype, {
    */
   clone(deep = true) {
     if (!deep) {
-      return this.slice(0);
+      return this.slice(0)
     }
-    let list = [];
-    this.forEach(item => list.push(Object.cloneSingle(item, deep)));
-    return list;
+    let list = []
+    this.forEach((item) => list.push(Object.cloneSingle(item, deep)))
+    return list
   },
   /**
    * 数组树转hash: key=>value
@@ -655,23 +651,24 @@ extend(Array.prototype, {
    * @return {Object}
    */
   toHash(key, keepRef = false, logIndex = false) {
-    let hash = {};
+    let hash = {}
     if (this.length > 0 && typeof key === 'string') {
       let each = (value, index) => {
-        hash[value[key]] = logIndex ? [value, index] : value;
+        hash[value[key]] = logIndex ? [value, index] : value
         if (value.children) {
-          Object.assign(hash, value.children.toHash(key, keepRef, logIndex));
+          Object.assign(hash, value.children.toHash(key, keepRef, logIndex))
         }
-      };
-      if (keepRef) { // 保留引用
-        this.forEach(each);
+      }
+      if (keepRef) {
+        // 保留引用
+        this.forEach(each)
       } else {
         this.forEach((info, index) => {
-          each(Object.clone(info), index);
-        });
+          each(Object.clone(info), index)
+        })
       }
     }
-    return hash;
+    return hash
   },
   /**
    * 数组Tree转List
@@ -681,19 +678,19 @@ extend(Array.prototype, {
    * @return {Array}
    */
   toList(callback, context, keepRef = true, level = 0) {
-    let list = [];
+    let list = []
     let each = (value) => {
-      list.push(callback ? callback.call(context, value, level) : value);
+      list.push(callback ? callback.call(context, value, level) : value)
       if (value.children) {
-        list = list.concat(value.children.toList(callback, context, keepRef, level + 1));
+        list = list.concat(value.children.toList(callback, context, keepRef, level + 1))
       }
-    };
-    if (keepRef) {
-      this.forEach(each);
-    } else {
-      this.forEach(item => each(Object.clone(item)));
     }
-    return list;
+    if (keepRef) {
+      this.forEach(each)
+    } else {
+      this.forEach((item) => each(Object.clone(item)))
+    }
+    return list
   },
   /**
    * 数组List转Tree
@@ -704,14 +701,14 @@ extend(Array.prototype, {
    * @returns {*}
    */
   toTree(idKey = 'id', parentIdKey = 'parent_id', childrenKey = 'children') {
-    let tree = [];
-    let children = [];
-    this.forEach(item => item[parentIdKey] ? children.push(item) : tree.push(item));
+    let tree = []
+    let children = []
+    this.forEach((item) => (item[parentIdKey] ? children.push(item) : tree.push(item)))
     let to = (nodes) => {
-      nodes.forEach(node => node[childrenKey] = to(children.filter(child => child[parentIdKey] == node[idKey])));
-      return nodes;
-    };
-    return to(tree);
+      nodes.forEach((node) => (node[childrenKey] = to(children.filter((child) => child[parentIdKey] == node[idKey]))))
+      return nodes
+    }
+    return to(tree)
   },
   /**
    * 根据主键ID查找数组Tree中的对象
@@ -720,19 +717,19 @@ extend(Array.prototype, {
    * @return {*}
    */
   findChildren(value, key = 'id') {
-    let child = null;
+    let child = null
     for (let i = 0, l = this.length; i < l; i++) {
       if (this[i][key] === value) {
-        return this[i];
+        return this[i]
       }
-      let children = this[i].children;
+      let children = this[i].children
       if (children) {
         if ((child = children.findChildren(value, key)) !== null) {
-          break;
+          break
         }
       }
     }
-    return child;
+    return child
   },
   /**
    * 按某键进行分组
@@ -740,13 +737,13 @@ extend(Array.prototype, {
    * @return {Object}
    */
   groupBy(key) {
-    let group = {};
-    this.forEach(item => {
-      let value = item[key];
-      group[value] = group[value] || [];
-      group[value].push(item);
-    });
-    return group;
+    let group = {}
+    this.forEach((item) => {
+      let value = item[key]
+      group[value] = group[value] || []
+      group[value].push(item)
+    })
+    return group
   },
   /**
    * 分割数组成N列
@@ -754,14 +751,14 @@ extend(Array.prototype, {
    * @returns {Array}
    */
   chunk(size) {
-    let chunk = [];
-    let page = 0;
+    let chunk = []
+    let page = 0
     this.forEach((item, index) => {
-      chunk[page] = chunk[page] || [];
-      chunk[page].push(item);
-      (index + 1) % size === 0 && page++;
-    });
-    return chunk;
+      chunk[page] = chunk[page] || []
+      chunk[page].push(item)
+      ;(index + 1) % size === 0 && page++
+    })
+    return chunk
   },
   /**
    * 查找到最后出现的值
@@ -769,10 +766,10 @@ extend(Array.prototype, {
    * @returns {number}
    */
   findLastIndex(callback) {
-    let index = this.slice(0).reverse().findIndex(callback);
-    return index === -1 ? -1 : this.length - index - 1;
-  }
-});
+    let index = this.slice(0).reverse().findIndex(callback)
+    return index === -1 ? -1 : this.length - index - 1
+  },
+})
 
 // Date.prototype
 extend(Date.prototype, {
@@ -781,23 +778,28 @@ extend(Date.prototype, {
    * @return {string}
    */
   toYmdString(seperator = '-') {
-    return this.getFullYear() + seperator +
-      (this.getMonth() + 1).toString().pad('0', 2) + seperator +
-      this.getDate().toString().pad('0', 2);
+    return this.getFullYear() + seperator + (this.getMonth() + 1).toString().pad('0', 2) + seperator + this.getDate().toString().pad('0', 2)
   },
   /**
    * 日期转yyyy-MM-dd hh:ii:ss
    * @return {string}
    */
   toYmdhisString(seperator1 = '-', seperator2 = ' ', seperator3 = ':') {
-    return this.getFullYear() + seperator1 +
-      (this.getMonth() + 1).toString().pad('0', 2) + seperator1 +
-      this.getDate().toString().pad('0', 2) + seperator2 +
-      this.getHours().toString().pad('0', 2) + seperator3 +
-      this.getMinutes().toString().pad('0', 2) + seperator3 +
-      this.getSeconds().toString().pad('0', 2);
-  }
-});
+    return (
+      this.getFullYear() +
+      seperator1 +
+      (this.getMonth() + 1).toString().pad('0', 2) +
+      seperator1 +
+      this.getDate().toString().pad('0', 2) +
+      seperator2 +
+      this.getHours().toString().pad('0', 2) +
+      seperator3 +
+      this.getMinutes().toString().pad('0', 2) +
+      seperator3 +
+      this.getSeconds().toString().pad('0', 2)
+    )
+  },
+})
 
 // Function.prototype
 // extend(Function.prototype, {
@@ -813,7 +815,7 @@ extend(Element.prototype, {
    * @return {T[]}
    */
   getChildren() {
-    return Object.toArray(this.children);
+    return Object.toArray(this.children)
   },
   /**
    * 添加元素 如果不存在
@@ -821,8 +823,8 @@ extend(Element.prototype, {
    * @return {Element}
    */
   appendChildx(elem) {
-    this.contains(elem) || this.appendChild(elem);
-    return this;
+    this.contains(elem) || this.appendChild(elem)
+    return this
   },
   /**
    * 删除元素 如果存在
@@ -830,8 +832,8 @@ extend(Element.prototype, {
    * @return {Element}
    */
   removeChildx(elem) {
-    this.contains(elem) && this.removeChild(elem);
-    return this;
+    this.contains(elem) && this.removeChild(elem)
+    return this
   },
   /**
    * 获取元素距离current的偏移值
@@ -839,15 +841,15 @@ extend(Element.prototype, {
    * @returns {number}
    */
   getOffsetTop(current) {
-    let offsetTop = this.offsetTop || 0;
-    let offsetParent = this.offsetParent;
+    let offsetTop = this.offsetTop || 0
+    let offsetParent = this.offsetParent
     while (offsetParent) {
-      offsetTop += offsetParent.offsetTop || 0;
-      offsetParent = offsetParent.offsetParent;
+      offsetTop += offsetParent.offsetTop || 0
+      offsetParent = offsetParent.offsetParent
     }
-    return offsetTop - (current && current.getOffsetTop() || 0);
-  }
-});
+    return offsetTop - ((current && current.getOffsetTop()) || 0)
+  },
+})
 
 // <= chrome46
 if (window.NodeList) {
@@ -855,9 +857,9 @@ if (window.NodeList) {
     forEach(callback) {
       if (callback && typeof callback === 'function') {
         for (let i = 0, l = this.length; i < l; i++) {
-          callback(this[i], i);
+          callback(this[i], i)
         }
       }
-    }
-  });
+    },
+  })
 }

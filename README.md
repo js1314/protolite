@@ -1,2 +1,2 @@
 # protolite
-Simple prototype extend
+Simple Prototype Extend~

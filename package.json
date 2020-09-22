@@ -23,7 +23,7 @@
   "_shasum": "5218ad220ac8c817c14d8413b7728f3b3928b401",
   "_spec": "protolite@^1.0.0",
   "_where": "D:\\Work\\01project\\iview-admin-owner\\iweb",
-  "author": "zyl <733433@qq.com>",
+  "author": "Yonglong Zhu<733433@qq.com>",
   "bugs": {
     "url": "https://github.com/js1314/protolite/issues"
   },
@@ -41,5 +41,6 @@
     "url": "git+https://github.com/js1314/protolite.git"
   },
   "scripts": {},
-  "version": "1.0.1"
+  "version": "1.0.3",
+  "dependencies": {}
 }
