@@ -1,18 +1,15 @@
 /**
- * 扩展js的原型链prototype方法
- * 这样就可以在全局内方便使用而不用加载
+ * Prototype Lite (轻量级prototype)
  *
  * @ahtor Yonglong Zhu<733433@qq.com>
- * @version 1.0.3
+ * @version v1.0.4
  */
 
 import { toByteArray } from 'base64-js'
 
 /**
- * 继承多个对象 不替换/不递归/保留索引
- *
- * @param dest
- * @param arguments(1,n)
+ * 继承多个对象(不替换/浅copy)
+ * @param {Object} target
  * @returns {Object}
  */
 function extend(target) {
@@ -28,7 +25,7 @@ function extend(target) {
 }
 
 // 对象类型判断方法分配
-// Object.is*， as: Promise.isPromise
+// Object.is*, as Object.isObject, Object.isArray
 const toString = Object.prototype.toString
 const typeMap = {
   '[object Boolean]': [Boolean, 'Boolean'],
@@ -59,20 +56,13 @@ const slice = Array.prototype.slice
 
 /**
  * 获取对象类型
- *
- * @param obj
- * @return {String}
+ * @param {Object} obj
+ * @returns {String}
  */
 function typeOf(obj) {
   let ret = typeMap[toString.call(obj)]
   return ret ? ret[1].toLowerCase() : 'undefined'
 }
-
-// extend window
-extend(window, {
-  // 创建一个全局对象用来存储跟组件相关的方法
-  Component: {},
-})
 
 // extend Object
 extend(Object, {
@@ -80,9 +70,9 @@ extend(Object, {
   typeOf,
   /**
    * 使用方法遍历对象
-   * @param obj
-   * @param callback
-   * @param context
+   * @param {Object} obj
+   * @param {Function} callback
+   * @param {Object} context
    */
   forEach(obj, callback, context) {
     for (let key in obj) {
@@ -91,15 +81,15 @@ extend(Object, {
   },
   /**
    * 是否为Promise实例
-   * @param obj
-   * @return {boolean}
+   * @param {Object} obj
+   * @returns {boolean}
    */
   isPromise(obj) {
     return !!obj && typeof obj.then === 'function' && typeof obj.catch === 'function'
   },
   /**
    * 是否为组件
-   * @param obj
+   * @param {Object} obj
    * @returns {boolean}
    */
   isComponent(obj) {
@@ -107,7 +97,7 @@ extend(Object, {
   },
   /**
    * 是否为空对象
-   * @param obj
+   * @param {Object} obj
    * @returns {boolean}
    */
   isEmpty(obj) {
@@ -120,10 +110,10 @@ extend(Object, {
   },
   /**
    * 方法作用到对象中每一个值
-   * @param obj
-   * @param callback
-   * @param deep
-   * @return {Object}
+   * @param {Object} obj
+   * @param {Function} callback
+   * @param {Boolean} deep
+   * @returns {Object}
    */
   map(obj, callback, deep = true) {
     if (obj && typeof obj === 'object') {
@@ -142,18 +132,18 @@ extend(Object, {
   },
   /**
    * 对象数组 转 数组
-   * @param obj
-   * @return {Array}
+   * @param {Object} obj
+   * @returns {Array}
    */
   toArray(obj) {
     return slice.call(obj)
   },
   /**
    * 不替换继承对象
-   * @param dest
-   * @param target
-   * @param ignoreKeys
-   * @return {Object}
+   * @param {Object} dest
+   * @param {Object} target
+   * @param {Array} ignoreKeys
+   * @returns {Object}
    */
   include(dest, target, ignoreKeys = []) {
     for (let key in target) {
@@ -165,10 +155,10 @@ extend(Object, {
   },
   /**
    * 替换继承对象
-   * @param dest
-   * @param target
-   * @param ignoreKeys
-   * @return {Object}
+   * @param {Object} dest
+   * @param {Object} target
+   * @param {Array} ignoreKeys
+   * @returns {Object}
    */
   replace(dest, target, ignoreKeys = []) {
     for (let key in target) {
@@ -179,8 +169,9 @@ extend(Object, {
     return dest
   },
   /**
-   * 去除左右空格
-   * @param obj
+   * 去除左右空格(递归Object)
+   * @param {Object} obj
+   * @param {Boolean} deep
    * @returns {Object}
    */
   trim(obj, deep = true) {
@@ -192,6 +183,12 @@ extend(Object, {
     }
     return obj
   },
+  /**
+   * 去除左右空格(递归mixed)
+   * @param {Object} obj
+   * @param {Boolean} deep
+   * @returns {Object}
+   */
   trimSingle(value, deep = true) {
     if (String.isString(value)) {
       return value.trim()
@@ -205,9 +202,9 @@ extend(Object, {
     return value
   },
   /**
-   * 复制对象
-   * @param obj
-   * @param deep
+   * 复制对象(递归Object)
+   * @param {Object} obj
+   * @param {Boolean} deep
    * @returns {Object}
    */
   clone(obj, deep = true) {
@@ -219,6 +216,12 @@ extend(Object, {
     }
     return hash
   },
+  /**
+   * 复制对象(递归mixed)
+   * @param {Object} obj
+   * @param {Boolean} deep
+   * @returns {Object}
+   */
   cloneSingle(value, deep = true) {
     if (Object.isObject(value)) {
       return Object.clone(value, deep)
@@ -229,11 +232,11 @@ extend(Object, {
     return value
   },
   /**
-   * 返回两个对象中不相同的部分(递归)
-   * @param newValue
-   * @param oldValue
-   * @param primaryKey
-   * @param ignoreKeys
+   * 返回两个对象中不相同的部分(递归Object)
+   * @param {Object} newData
+   * @param {Object} oldData
+   * @param {String} primaryKey
+   * @param {Array} ignoreKeys
    * @returns {Object}
    */
   diff(newData, oldData, primaryKey = '', ignoreKeys = []) {
@@ -256,6 +259,14 @@ extend(Object, {
     }
     return data
   },
+  /**
+   * 返回两个对象中不相同的部分(递归mixed)
+   * @param {Object} newValue
+   * @param {Object} oldValue
+   * @param {String} primaryKey
+   * @param {Array} ignoreKeys
+   * @returns {Object}
+   */
   diffSingle(newValue, oldValue, primaryKey = '', ignoreKeys = []) {
     if (oldValue === undefined) {
       return newValue
@@ -283,8 +294,8 @@ extend(Object, {
   },
   /**
    * 捕获Promise异常到控制台warn
-   * @param data
-   * @return {Promise<any>}
+   * @param {Object} data
+   * @returns {Promise}
    */
   console(data) {
     let promise = new Promise((resolve, reject) => reject(data))
@@ -293,10 +304,10 @@ extend(Object, {
   },
   /**
    * 根据路径获取
-   * @param data
-   * @param path
-   * @param def
-   * @returns {*}
+   * @param {Object} data
+   * @param {String} path
+   * @param {Object} def
+   * @returns {Object}
    */
   get(data, path, def = null) {
     for (let value = data, paths = path.split('.'), i = 0, l = paths.length; i < l; i++) {
@@ -311,9 +322,9 @@ extend(Object, {
   },
   /**
    * 调用对象方法
-   * @param hook
-   * @param name
-   * @param args
+   * @param {Object} hook
+   * @param {Object} name
+   * @param {Array} args
    * @returns {null}
    */
   apply(hook, name, args) {
@@ -331,6 +342,11 @@ extend(Function, {})
 
 // extend Array
 extend(Array, {
+  /**
+   * 判断对象是否为ArrayBuffer
+   * @param {Object} val
+   * @returns {Boolean}
+   */
   isArrayBuffer(val) {
     return toString.call(val) === '[object ArrayBuffer]'
   },
@@ -341,9 +357,9 @@ extend(String, {
   trim: Object.trim,
   /**
    * 对象转数组，为字符串则按split分割
-   * @param str 可为数组或字符串
-   * @param split
-   * @returns {*}
+   * @param {String} str 可为数组或字符串
+   * @param {String} split
+   * @returns {Array}
    */
   toArray(str, split = ',') {
     if (str && str.length > 0) {
@@ -363,8 +379,8 @@ extend(String, {
 extend(Date, {
   /**
    * 获取时间戳
-   * @param date 日期字段串
-   * @param ms 是否返回毫秒级
+   * @param {Date|String} date 日期字段串
+   * @param {Boolean} ms 是否返回毫秒级
    * @returns {number}
    */
   time(date, ms = false) {
@@ -374,6 +390,11 @@ extend(Date, {
 
 // extend Element
 extend(Element, {
+  /**
+   * 判断是否为元素
+   * @param {Object} elem
+   * @returns {Boolean}
+   */
   isElement(elem) {
     return elem && elem.nodeType == 1
   },
@@ -388,15 +409,15 @@ extend(Component, {
 extend(String.prototype, {
   /**
    * 首字母大写
-   * @return {string}
+   * @returns {String}
    */
   ucfirst() {
     return this.charAt(0).toUpperCase() + this.substr(1)
   },
   /**
    * 重复若干(len)次
-   * @param len
-   * @return {String}
+   * @param {Number} len
+   * @returns {String}
    */
   repeat(len) {
     let str = ''
@@ -407,9 +428,9 @@ extend(String.prototype, {
   },
   /**
    * 用指定的字符(char)将自身扩展到指定长度(max_len)
-   * @param char
-   * @param max_len
-   * @return {string}
+   * @param {String} char
+   * @param {Number} max_len
+   * @returns {String}
    */
   pad(char, max_len) {
     let str = this
@@ -418,7 +439,9 @@ extend(String.prototype, {
   },
   /**
    * 字符长度，中文+2
-   * @return {number}
+   * @param {Number} ch
+   * @param {Number} en
+   * @returns {Number}
    */
   len(ch = 2, en = 1) {
     let len = 0
@@ -435,23 +458,23 @@ extend(String.prototype, {
   },
   /**
    * 删除一段字符串
-   * @param str
-   * @param split
-   * @return {string}
+   * @param {String} str
+   * @param {String} split
+   * @returns {String}
    */
   remove(str, split = ',') {
     return this.split(split).remove(str).join(',')
   },
   /**
    * base64编码
-   * @return {string}
+   * @returns {String}
    */
   base64encode() {
     return new Buffer(this).toString('base64')
   },
   /**
    * base64解码
-   * @return {string}
+   * @returns {String}
    */
   base64decode() {
     return String.fromCharCode(...toByteArray(this))
@@ -460,30 +483,34 @@ extend(String.prototype, {
 
 // Array.prototype
 extend(Array.prototype, {
+  /**
+   * 转数组(浅copy)
+   * @returns {Array}
+   */
   toArray() {
     return this.slice(0)
   },
   /**
    * 值是否存在
-   * @param item
-   * @return {boolean}
+   * @param {Object} item
+   * @returns {Boolean}
    */
   contains(item) {
     return this.indexOf(item) !== -1
   },
   /**
-   * 添加项 如果不存在
-   * @param item
-   * @return {Array}
+   * 添加项(如果不存在)
+   * @param {Object} item
+   * @returns {Array}
    */
   add(item) {
     this.indexOf(item) === -1 && this.push(item)
     return this
   },
   /**
-   * 删除项 如果存在
-   * @param item
-   * @return {Array}
+   * 删除项(如果存在)
+   * @param {Object} item
+   * @returns {Array}
    */
   remove(item) {
     let index = this.indexOf(item)
@@ -491,43 +518,47 @@ extend(Array.prototype, {
     return this
   },
   /**
-   * [...Object] 是否有对象
-   * @param obj
-   * @param fromKey
-   * @param toKey
-   * @return {boolean}
+   * 是否有对象
+   * @this {Array<Object>}
+   * @param {Object} obj
+   * @param {String} fromKey
+   * @param {String} toKey
+   * @returns {Boolean}
    */
   hasObj(obj, fromKey = 'id', toKey = 'id') {
     return this.some((item) => item[fromKey] === obj[toKey])
   },
   /**
-   * [...Object] 查找对象
-   * @param obj
-   * @param fromKey
-   * @param toKey
-   * @return {boolean}
+   * 查找对象
+   * @this {Array<Object>}
+   * @param {Object} obj
+   * @param {String} fromKey
+   * @param {String} toKey
+   * @returns {Boolean}
    */
   findObj(obj, fromKey = 'id', toKey = 'id') {
     let index = this.findIndex((value) => obj[fromKey] === value[toKey])
     return index === -1 ? null : this[index]
   },
   /**
-   * [...Object] 添加对象
-   * @param obj
-   * @param fromKey
-   * @param toKey
-   * @return {boolean}
+   * 添加对象
+   * @this {Array<Object>}
+   * @param {Object} obj
+   * @param {String} fromKey
+   * @param {String} toKey
+   * @returns {Boolean}
    */
   addObj(obj, fromKey = 'id', toKey = 'id') {
     this.hasObj(obj, fromKey, toKey) || this.push(obj)
     return this
   },
   /**
-   * [...Object] 替换对象
-   * @param obj
-   * @param fromKey
-   * @param toKey
-   * @return {boolean}
+   * 替换对象
+   * @this {Array<Object>}
+   * @param {Object} obj
+   * @param {String} fromKey
+   * @param {String} toKey
+   * @returns {Boolean}
    */
   replaceObj(obj, fromKey = 'id', toKey = 'id') {
     let fromFun = typeof fromKey === 'function' ? fromKey : (value) => obj[fromKey] === value[toKey]
@@ -537,12 +568,13 @@ extend(Array.prototype, {
     return this
   },
   /**
-   * [...Object] 删除对象
-   * @param obj
-   * @param fromKey
-   * @param toKey
-   * @param isAny
-   * @return {boolean}
+   * 删除对象
+   * @this {Array<Object>}
+   * @param {Object} obj
+   * @param {String} fromKey
+   * @param {String} toKey
+   * @param {Boolean} isAny
+   * @returns {Boolean}
    */
   removeObj(obj, fromKey = 'id', toKey = 'id', isAny = false) {
     let isSome = this.some((item, index) => {
@@ -559,11 +591,11 @@ extend(Array.prototype, {
     return this
   },
   /**
-   * 返回两个数据中不相同的项 深度递归
-   * @param oldData
-   * @param primaryKey
-   * @param ignoreKeys
-   * @return {boolean}
+   * 返回两个数据中不相同的项(深度递归)
+   * @param {Object} oldData
+   * @param {String} primaryKey
+   * @param {Array} ignoreKeys
+   * @returns {Boolean}
    */
   diff(oldData, primaryKey = '', ignoreKeys = []) {
     let l = oldData && oldData.length
@@ -581,26 +613,24 @@ extend(Array.prototype, {
   },
   /**
    * 去除数组中每个值的左右空格
-   * @param obj
-   * @param fromKey
-   * @param toKey
-   * @return {boolean}
+   * @param {Boolean} deep
+   * @returns {Array}
    */
   trim(deep = true) {
     return this.map((item) => Object.trimSingle(item, deep))
   },
   /**
    * 获取数据数据最后一条
-   * @return {*}
+   * @returns {Object}
    */
   end() {
     return this[this.length - 1]
   },
   /**
    * 收集数组对象中某个字段的值
-   * Array<Object>
-   * @param key
-   * @return {Array}
+   * @this {Array<Object>}
+   * @param {String} key
+   * @returns {Array}
    */
   column(key) {
     let columns = []
@@ -615,9 +645,9 @@ extend(Array.prototype, {
     return columns
   },
   /**
-   * 继承多个数组
-   * 数组值唯一
-   * @return {Array}
+   * 继承多个数组(值唯一)
+   * @this {Array<Object>}
+   * @returns {Array}
    */
   extend() {
     for (let i = 0, l = arguments.length; i < l; i++) {
@@ -643,11 +673,11 @@ extend(Array.prototype, {
     return list
   },
   /**
-   * 数组树转hash: key=>value
-   * Array<Object.children>
-   * @param key primaryKey名称
-   * @param keepRef 是否保留引用
-   * @param logIndex 是否记录index
+   * 数组树转hash(key=>value)
+   * @this {Array<Tree>}
+   * @param {String} key primaryKey名称
+   * @param {Boolean} keepRef 是否保留引用
+   * @param {Number} logIndex 是否记录index
    * @return {Object}
    */
   toHash(key, keepRef = false, logIndex = false) {
@@ -672,9 +702,10 @@ extend(Array.prototype, {
   },
   /**
    * 数组Tree转List
-   * @param callback 回调方法
-   * @param context 回调this
-   * @param keepRef 是否保留引用
+   * @this {Array<Tree>}
+   * @param {Function} callback 回调方法
+   * @param {Object} context 回调this
+   * @param {Boolean} keepRef 是否保留引用
    * @return {Array}
    */
   toList(callback, context, keepRef = true, level = 0) {
@@ -694,11 +725,12 @@ extend(Array.prototype, {
   },
   /**
    * 数组List转Tree
-   * @param callback
-   * @param idKey
-   * @param parentIdKey
-   * @param childrenKey
-   * @returns {*}
+   * @this {Array<Object>}
+   * @param {Function} callback
+   * @param {Strng} idKey
+   * @param {Strng} parentIdKey
+   * @param {Strng} childrenKey
+   * @returns {Array}
    */
   toTree(idKey = 'id', parentIdKey = 'parent_id', childrenKey = 'children') {
     let tree = []
@@ -712,9 +744,10 @@ extend(Array.prototype, {
   },
   /**
    * 根据主键ID查找数组Tree中的对象
-   * @param id
-   * @param key
-   * @return {*}
+   * @this {Array<Tree>}
+   * @param {Strng} id
+   * @param {Strng} key
+   * @returns {Object}
    */
   findChildren(value, key = 'id') {
     let child = null
@@ -733,8 +766,9 @@ extend(Array.prototype, {
   },
   /**
    * 按某键进行分组
-   * @param key
-   * @return {Object}
+   * @this {Array<Object>}
+   * @param {Strng} key
+   * @returns {Object}
    */
   groupBy(key) {
     let group = {}
@@ -747,7 +781,7 @@ extend(Array.prototype, {
   },
   /**
    * 分割数组成N列
-   * @param size
+   * @param {Number} size
    * @returns {Array}
    */
   chunk(size) {
@@ -762,8 +796,8 @@ extend(Array.prototype, {
   },
   /**
    * 查找到最后出现的值
-   * @param callback
-   * @returns {number}
+   * @param {Function} callback
+   * @returns {Number}
    */
   findLastIndex(callback) {
     let index = this.slice(0).reverse().findIndex(callback)
@@ -775,14 +809,18 @@ extend(Array.prototype, {
 extend(Date.prototype, {
   /**
    * 日期转yyyy-MM-dd
-   * @return {string}
+   * @param {String} seperator
+   * @return {String}
    */
   toYmdString(seperator = '-') {
     return this.getFullYear() + seperator + (this.getMonth() + 1).toString().pad('0', 2) + seperator + this.getDate().toString().pad('0', 2)
   },
   /**
    * 日期转yyyy-MM-dd hh:ii:ss
-   * @return {string}
+   * @param {String} seperator1
+   * @param {String} seperator2
+   * @param {String} seperator3
+   * @return {String}
    */
   toYmdhisString(seperator1 = '-', seperator2 = ' ', seperator3 = ':') {
     return (
@@ -812,24 +850,24 @@ extend(Date.prototype, {
 extend(Element.prototype, {
   /**
    * 对象数组转数组
-   * @return {T[]}
+   * @returns {Array}
    */
   getChildren() {
     return Object.toArray(this.children)
   },
   /**
-   * 添加元素 如果不存在
-   * @param item
-   * @return {Element}
+   * 添加元素(如果不存在)
+   * @param {Element} elem
+   * @returns {Element}
    */
   appendChildx(elem) {
     this.contains(elem) || this.appendChild(elem)
     return this
   },
   /**
-   * 删除元素 如果存在
-   * @param item
-   * @return {Element}
+   * 删除元素(如果存在)
+   * @param {Element} elem
+   * @returns {Element}
    */
   removeChildx(elem) {
     this.contains(elem) && this.removeChild(elem)
@@ -837,7 +875,7 @@ extend(Element.prototype, {
   },
   /**
    * 获取元素距离current的偏移值
-   * @param current
+   * @param {Element} current
    * @returns {number}
    */
   getOffsetTop(current) {
@@ -849,6 +887,95 @@ extend(Element.prototype, {
     }
     return offsetTop - ((current && current.getOffsetTop()) || 0)
   },
+})
+
+// Component Object
+const Component = {
+  /**
+   * 向上获取最后一个父组件
+   * @param {Object} component
+   * @param {String} name
+   * @returns {Object}
+   */
+  getFirstParent(component, name) {
+    let parent = component
+    let names = Object.toArray(name)
+    while ((parent = parent.$parent) && (!(name = parent.$options.name) || names.indexOf(name) < 0));
+    return parent
+  },
+  /**
+   * 向下获取最后一个子组件
+   * @param {Object} component
+   * @param {String} name
+   * @returns {Object}
+   */
+  getLastChild(component, name) {
+    let children = component.$children
+    let lastChild = null
+    if (children.length) {
+      for (let child of children) {
+        let optName = child.$options.name
+        if (optName === name) {
+          lastChild = child
+          break
+        }
+        if ((lastChild = Component.getLastChild(child, name))) {
+          break
+        }
+      }
+    }
+    return lastChild
+  },
+  /**
+   * 向下获取所有子组件
+   * @param {Object} component
+   * @param {String} name
+   * @returns {Array}
+   */
+  getChildren(component, name) {
+    return component.$children.reduce((components, child) => {
+      if (child.$options.name === name) {
+        components.push(child)
+      }
+      return components.concat(Component.getChildren(child, name))
+    }, [])
+  },
+  /**
+   * 向上获取所有父组件
+   * @param {Object} component
+   * @param {String} name
+   * @returns {Array}
+   */
+  getParents(component, name) {
+    let parents = []
+    let parent = component.$parent
+    if (parent) {
+      if (parent.$options.name === name) {
+        parents.push(parent)
+      }
+      return parents.concat(Component.getParents(parent, name))
+    }
+    return []
+  },
+  /**
+   * 获取所有兄弟组件
+   * @param {Object} component
+   * @param {String} name
+   * @param {Boolean} exceptMe
+   * @returns {Array}
+   */
+  getSiblings(component, name, exceptMe = true) {
+    let siblings = component.$parent.$children.filter((item) => item.$options.name === name)
+    let index = siblings.findIndex((item) => item._uid === component._uid)
+    exceptMe && siblings.splice(index, 1)
+    return siblings
+  },
+}
+
+// extend window
+extend(window, {
+  // 创建一个全局对象用来存储跟组件相关的方法
+  Component,
 })
 
 // <= chrome46

@@ -28,7 +28,7 @@
     "url": "https://github.com/js1314/protolite/issues"
   },
   "deprecated": false,
-  "description": "封装了一些开发中常用的js原型方法",
+  "description": "Prototype Lite",
   "homepage": "https://github.com/js1314/protolite#readme",
   "keywords": [
     "protolite"
@@ -41,6 +41,6 @@
     "url": "git+https://github.com/js1314/protolite.git"
   },
   "scripts": {},
-  "version": "1.0.3",
+  "version": "1.0.4",
   "dependencies": {}
 }
