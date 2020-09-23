@@ -400,11 +400,6 @@ extend(Element, {
   },
 })
 
-// extend Component
-extend(Component, {
-  isComponent: Object.isComponent,
-})
-
 // String.prototype
 extend(String.prototype, {
   /**
@@ -891,6 +886,7 @@ extend(Element.prototype, {
 
 // Component Object
 const Component = {
+  isComponent: Object.isComponent,
   /**
    * 向上获取最后一个父组件
    * @param {Object} component
