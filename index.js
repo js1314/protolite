@@ -2,10 +2,8 @@
  * Prototype Lite (轻量级prototype)
  *
  * @ahtor Yonglong Zhu<733433@qq.com>
- * @version v1.0.4
+ * @version v1.0.5
  */
-
-import { toByteArray } from 'base64-js'
 
 /**
  * 继承多个对象(不替换/浅copy)
@@ -93,7 +91,7 @@ extend(Object, {
    * @returns {boolean}
    */
   isComponent(obj) {
-    return obj && (typeof obj === 'object' || typeof obj === 'function')
+    return obj && typeof obj === 'object' && typeof obj.$options === 'object'
   },
   /**
    * 是否为空对象
@@ -293,23 +291,13 @@ extend(Object, {
     return newValue
   },
   /**
-   * 捕获Promise异常到控制台warn
-   * @param {Object} data
-   * @returns {Promise}
-   */
-  console(data) {
-    let promise = new Promise((resolve, reject) => reject(data))
-    promise.catch((error) => error && console.warn(error))
-    return promise
-  },
-  /**
    * 根据路径获取
    * @param {Object} data
    * @param {String} path
    * @param {Object} def
    * @returns {Object}
    */
-  get(data, path, def = null) {
+  hget(data, path, def = null) {
     for (let value = data, paths = path.split('.'), i = 0, l = paths.length; i < l; i++) {
       let _value = value[paths[i]]
       if (typeof _value === 'object') {
@@ -325,7 +313,7 @@ extend(Object, {
    * @param {Object} hook
    * @param {Object} name
    * @param {Array} args
-   * @returns {null}
+   * @returns {Object}
    */
   apply(hook, name, args) {
     if (hook && typeof hook[name] === 'function') {
@@ -427,11 +415,14 @@ extend(String.prototype, {
    * @param {Number} max_len
    * @returns {String}
    */
+  /*
+  // in “core-js/modules/es7.string.pad-start” done
   pad(char, max_len) {
     let str = this
     let len = str.length
     return len < max_len ? char.repeat(max_len - len) + str : str
   },
+  */
   /**
    * 字符长度，中文+2
    * @param {Number} ch
@@ -459,20 +450,6 @@ extend(String.prototype, {
    */
   remove(str, split = ',') {
     return this.split(split).remove(str).join(',')
-  },
-  /**
-   * base64编码
-   * @returns {String}
-   */
-  base64encode() {
-    return new Buffer(this).toString('base64')
-  },
-  /**
-   * base64解码
-   * @returns {String}
-   */
-  base64decode() {
-    return String.fromCharCode(...toByteArray(this))
   },
 })
 
@@ -657,7 +634,7 @@ extend(Array.prototype, {
   /**
    * 克隆一个数组
    * @param deep
-   * @return {Array}
+   * @returns {Array}
    */
   clone(deep = true) {
     if (!deep) {
@@ -673,7 +650,7 @@ extend(Array.prototype, {
    * @param {String} key primaryKey名称
    * @param {Boolean} keepRef 是否保留引用
    * @param {Number} logIndex 是否记录index
-   * @return {Object}
+   * @returns {Object}
    */
   toHash(key, keepRef = false, logIndex = false) {
     let hash = {}
@@ -701,7 +678,7 @@ extend(Array.prototype, {
    * @param {Function} callback 回调方法
    * @param {Object} context 回调this
    * @param {Boolean} keepRef 是否保留引用
-   * @return {Array}
+   * @returns {Array}
    */
   toList(callback, context, keepRef = true, level = 0) {
     let list = []
@@ -760,7 +737,7 @@ extend(Array.prototype, {
     return child
   },
   /**
-   * 按某键进行分组
+   * 按对象键名分组
    * @this {Array<Object>}
    * @param {Strng} key
    * @returns {Object}
@@ -785,7 +762,9 @@ extend(Array.prototype, {
     this.forEach((item, index) => {
       chunk[page] = chunk[page] || []
       chunk[page].push(item)
-      ;(index + 1) % size === 0 && page++
+      if ((index + 1) % size === 0) {
+        page++
+      }
     })
     return chunk
   },
@@ -808,7 +787,13 @@ extend(Date.prototype, {
    * @return {String}
    */
   toYmdString(seperator = '-') {
-    return this.getFullYear() + seperator + (this.getMonth() + 1).toString().pad('0', 2) + seperator + this.getDate().toString().pad('0', 2)
+    return (
+      this.getFullYear() +
+      seperator +
+      (this.getMonth() + 1).toString().padLeft('0', 2) +
+      seperator +
+      this.getDate().toString().padLeft('0', 2)
+    )
   },
   /**
    * 日期转yyyy-MM-dd hh:ii:ss
@@ -821,15 +806,15 @@ extend(Date.prototype, {
     return (
       this.getFullYear() +
       seperator1 +
-      (this.getMonth() + 1).toString().pad('0', 2) +
+      (this.getMonth() + 1).toString().padLeft('0', 2) +
       seperator1 +
-      this.getDate().toString().pad('0', 2) +
+      this.getDate().toString().padLeft('0', 2) +
       seperator2 +
-      this.getHours().toString().pad('0', 2) +
+      this.getHours().toString().padLeft('0', 2) +
       seperator3 +
-      this.getMinutes().toString().pad('0', 2) +
+      this.getMinutes().toString().padLeft('0', 2) +
       seperator3 +
-      this.getSeconds().toString().pad('0', 2)
+      this.getSeconds().toString().padLeft('0', 2)
     )
   },
 })
